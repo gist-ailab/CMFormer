@@ -17,7 +17,8 @@ import itertools
 import logging
 import os
 
-os.environ['DETECTRON2_DATASETS'] = 'E:/DGtask/datasets'
+# os.environ['DETECTRON2_DATASETS'] = 'E:/DGtask/datasets'
+os.environ['DETECTRON2_DATASETS'] = '../'
 
 from collections import OrderedDict
 from typing import Any, Dict, List, Set
@@ -27,7 +28,7 @@ import torch
 import detectron2.utils.comm as comm
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
-from detectron2.data import MetadataCatalog, build_detection_train_loader
+from detectron2.data import MetadataCatalog, build_detection_train_loader, DatasetCatalog
 from detectron2.engine import (
     DefaultTrainer,
     default_argument_parser,
@@ -59,6 +60,7 @@ from mask2former import (
     SemanticSegmentorWithTTA,
     add_maskformer2_config,
 )
+from mask2former.data.datasets.lars_semantic import load_lars_semantic, load_lars_semantic_val
 
 
 class Trainer(DefaultTrainer):
@@ -299,6 +301,13 @@ def setup(args):
 
 def main(args):
     cfg = setup(args)
+
+    if 'lars_sem_seg_train' in cfg.DATASETS.TRAIN:
+        DatasetCatalog.register("lars_sem_seg_train", load_lars_semantic)
+        # MetadataCatalog.register("my_dataset", load_lars_semantic)
+    if 'lars_sem_seg_val' in cfg.DATASETS.TEST:
+        DatasetCatalog.register("lars_sem_seg_val", load_lars_semantic_val)
+        # MetadataCatalog.register("my_dataset", load_lars_semantic)
 
     if args.eval_only:
         model = Trainer.build_model(cfg)
