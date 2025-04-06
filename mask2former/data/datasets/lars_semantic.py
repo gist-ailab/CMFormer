@@ -54,14 +54,12 @@ def load_lars_semantic(image_dir='../dset/LaRS/lars_v1.0.0_images/train/images',
     # gt_dir is small and contain many small files. make sense to fetch to local first
     gt_dir = PathManager.get_local_path(gt_dir)
     for image_file, label_file in _get_lars_files(image_dir, gt_dir):
-        label_file = label_file.replace("labelIds", "labelTrainIds")
+        # label_file = label_file.replace("labelIds", "labelTrainIds")
 
         # with PathManager.open(json_file, "r") as f:
         #     jsonobj = json.load(f)
         
-        width, height = Image.open(label_file).size
-        # print(height, width)
-        print("height, width", height, width)
+        width, height = Image.open(image_file).size
 
         ret.append(
             {
