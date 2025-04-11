@@ -1,3 +1,5 @@
+# python demo/demo_lars.py --config-file configs/lars/semantic-segmentation/swin/maskformer2_swin_large_IN21k_384_bs16_90k.yaml --output output/vis
+
 # Copyright (c) Facebook, Inc. and its affiliates.
 # Modified by Bowen Cheng from: https://github.com/facebookresearch/detectron2/blob/master/demo/demo.py
 import argparse
