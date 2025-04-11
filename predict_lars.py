@@ -23,7 +23,7 @@ class Predictor(cog.Predictor):
         cfg = get_cfg()
         add_deeplab_config(cfg)
         add_maskformer2_config(cfg)
-        cfg.merge_from_file("configs/lars/semantic-segmentation/swin/maskformer2_swin_large_IN21k_384_bs16_90k.yaml")
+        cfg.merge_from_file("Mask2Former/configs/coco/panoptic-segmentation/swin/maskformer2_swin_large_IN21k_384_bs16_100ep.yaml")
         cfg.MODEL.WEIGHTS = 'model_final_f07440.pkl'
         cfg.MODEL.MASK_FORMER.TEST.SEMANTIC_ON = True
         cfg.MODEL.MASK_FORMER.TEST.INSTANCE_ON = True
@@ -41,14 +41,15 @@ class Predictor(cog.Predictor):
     def predict(self, image):
         im = cv2.imread(str(image))
         outputs = self.predictor(im)
-        v = Visualizer(im[:, :, ::-1], self.coco_metadata, scale=1.2, instance_mode=ColorMode.IMAGE_BW)
-        panoptic_result = v.draw_panoptic_seg(outputs["panoptic_seg"][0].to("cpu"),
-                                              outputs["panoptic_seg"][1]).get_image()
-        v = Visualizer(im[:, :, ::-1], self.coco_metadata, scale=1.2, instance_mode=ColorMode.IMAGE_BW)
-        instance_result = v.draw_instance_predictions(outputs["instances"].to("cpu")).get_image()
+        # v = Visualizer(im[:, :, ::-1], self.coco_metadata, scale=1.2, instance_mode=ColorMode.IMAGE_BW)
+        # panoptic_result = v.draw_panoptic_seg(outputs["panoptic_seg"][0].to("cpu"),
+        #                                       outputs["panoptic_seg"][1]).get_image()
+        # v = Visualizer(im[:, :, ::-1], self.coco_metadata, scale=1.2, instance_mode=ColorMode.IMAGE_BW)
+        # instance_result = v.draw_instance_predictions(outputs["instances"].to("cpu")).get_image()
         v = Visualizer(im[:, :, ::-1], self.coco_metadata, scale=1.2, instance_mode=ColorMode.IMAGE_BW)
         semantic_result = v.draw_sem_seg(outputs["sem_seg"].argmax(0).to("cpu")).get_image()
-        result = np.concatenate((panoptic_result, instance_result, semantic_result), axis=0)[:, :, ::-1]
+        # result = np.concatenate((panoptic_result, instance_result, semantic_result), axis=0)[:, :, ::-1]
+        result = np.concatenate((semantic_result), axis=0)[:, :, ::-1]
         out_path = Path(tempfile.mkdtemp()) / "out.png"
         cv2.imwrite(str(out_path), result)
         return out_path
