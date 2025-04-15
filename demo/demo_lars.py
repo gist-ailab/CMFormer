@@ -30,40 +30,21 @@ from mask2former import add_maskformer2_config
 from predictor import VisualizationDemo
 
 
+MERGE_SHIP_WITH_LAND = True
 
-def create_cityscapes_label_colormap():
-    """Creates a label colormap used in CITYSCAPES segmentation benchmark.
-    Returns:
-        A colormap for visualizing segmentation results.
-    """
-    colormap = np.zeros((256, 3), dtype=np.uint8)
-    colormap[0] = [128, 64, 128]
-    colormap[1] = [244, 35, 232]
-    colormap[2] = [70, 70, 70]
-    colormap[3] = [102, 102, 156]
-    colormap[4] = [190, 153, 153]
-    colormap[5] = [153, 153, 153]
-    colormap[6] = [250, 170, 30]
-    colormap[7] = [220, 220, 0]
-    colormap[8] = [107, 142, 35]
-    colormap[9] = [152, 251, 152]
-    colormap[10] = [70, 130, 180]
-    colormap[11] = [220, 20, 60]
-    colormap[12] = [255, 0, 0]
-    colormap[13] = [0, 0, 142]
-    colormap[14] = [0, 0, 70]
-    colormap[15] = [0, 60, 100]
-    colormap[16] = [0, 80, 100]
-    colormap[17] = [0, 0, 230]
-    colormap[18] = [119, 11, 32]
-    return colormap
+def mask_to_palette(mask, palette):
+    mask = mask.astype(int)
+    color_mask = np.zeros((mask.shape[0], mask.shape[1], 3), dtype=np.uint8)
+    for i in range(len(palette)):
+        if i == 3 and MERGE_SHIP_WITH_LAND:
+            rgb = palette[0]
+        else:
+            rgb = palette[i]
+        bgr = [rgb[2], rgb[1], rgb[0]]
+        color_mask[mask == i] = bgr
+    return color_mask
 
-def label_to_color_image(label):
-  
-  colormap = create_cityscapes_label_colormap()
-  return colormap[label]
-
-
+palette = [[247, 195, 37], [41, 167, 224], [90, 75, 164], [224, 58, 31], [0, 0, 0]]
 
 # constants
 WINDOW_NAME = "mask2former demo"
@@ -160,7 +141,7 @@ if __name__ == "__main__":
     # import ipdb; ipdb.set_trace()
     # filelist = GetFileFromThisRootDir(args.input[0])
     # filelist = ["../dset/LaRS/lars_v1.0.0_images/val/images/inhouse_seq_198_00039.jpg"]
-    filelist = glob.glob("../dset/LaRS/lars_v1.0.0_images/val/images/*.jpg")
+    filelist = glob.glob("../dset/LaRS/lars_v1.0.0_images/test/images/*.jpg")
     for path in tqdm.tqdm(filelist, disable=not args.output):
         # use PIL, to be consistent with evaluation
         img = read_image(path, format="BGR")
@@ -184,6 +165,6 @@ if __name__ == "__main__":
             os.makedirs(args.output)
         output_path = os.path.join(args.output, basename)
 
-        outimg = predictions['sem_seg'].detach().cpu().numpy().argmax(0).astype(np.uint8) * 70
-        # print(np.unique(outimg))
-        cv2.imwrite(output_path, outimg)
+        outimg = predictions['sem_seg'].detach().cpu().numpy().argmax(0).astype(np.uint8)
+        outimg = mask_to_palette(outimg, palette)
+        cv2.imwrite(output_path.replace('.jpg', '.png'), outimg)
