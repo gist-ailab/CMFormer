@@ -61,6 +61,7 @@ from mask2former import (
     add_maskformer2_config,
 )
 from mask2former.data.datasets.lars_semantic import load_lars_semantic, load_lars_semantic_val
+from mask2former.data.datasets.gta_semantic import load_gta_semantic
 
 
 class Trainer(DefaultTrainer):
@@ -308,6 +309,8 @@ def main(args):
     if 'lars_sem_seg_train' in cfg.DATASETS.TRAIN:
         DatasetCatalog.register("lars_sem_seg_train", load_lars_semantic)
         # MetadataCatalog.register("my_dataset", load_lars_semantic)
+    elif 'gta_sem_seg_train' in cfg.DATASETS.TRAIN:
+        DatasetCatalog.register("gta_sem_seg_train", load_gta_semantic)
     if 'lars_sem_seg_val' in cfg.DATASETS.TEST:
         DatasetCatalog.register("lars_sem_seg_val", load_lars_semantic_val)
         # MetadataCatalog.register("my_dataset", load_lars_semantic)
