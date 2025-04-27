@@ -18,7 +18,7 @@ import logging
 import os
 
 # os.environ['DETECTRON2_DATASETS'] = 'E:/DGtask/datasets'
-os.environ['DETECTRON2_DATASETS'] = '../'
+os.environ['DETECTRON2_DATASETS'] = '/home/jovyan/SSDb/seongju_lee/dset'
 
 from collections import OrderedDict
 from typing import Any, Dict, List, Set
@@ -62,6 +62,8 @@ from mask2former import (
 )
 from mask2former.data.datasets.lars_semantic import load_lars_semantic, load_lars_semantic_val
 from mask2former.data.datasets.gta_semantic import load_gta_semantic
+from mask2former.data.datasets.bdd_semantic import load_bdd_semantic_val
+from mask2former.data.datasets.map_semantic import load_map_semantic_val
 
 
 class Trainer(DefaultTrainer):
@@ -314,6 +316,20 @@ def main(args):
     if 'lars_sem_seg_val' in cfg.DATASETS.TEST:
         DatasetCatalog.register("lars_sem_seg_val", load_lars_semantic_val)
         # MetadataCatalog.register("my_dataset", load_lars_semantic)
+    if 'bdd_sem_seg_val' in cfg.DATASETS.TEST:
+        DatasetCatalog.register("bdd_sem_seg_val", load_bdd_semantic_val)
+        MetadataCatalog.get("bdd_sem_seg_val").set(
+            evaluator_type="sem_seg",
+            ignore_label=255,
+            stuff_classes=MetadataCatalog.get("cityscapes_fine_sem_seg_train").stuff_classes
+        )
+    if 'map_sem_seg_val' in cfg.DATASETS.TEST:
+        DatasetCatalog.register("map_sem_seg_val", load_map_semantic_val)
+        MetadataCatalog.get("map_sem_seg_val").set(
+            evaluator_type="sem_seg",
+            ignore_label=255,
+            stuff_classes=MetadataCatalog.get("cityscapes_fine_sem_seg_train").stuff_classes
+        )
 
     if args.eval_only:
         model = Trainer.build_model(cfg)
