@@ -65,6 +65,10 @@ from mask2former.data.datasets.gta_semantic import load_gta_semantic
 from mask2former.data.datasets.bdd_semantic import load_bdd_semantic_val
 from mask2former.data.datasets.map_semantic import load_map_semantic_val
 
+from mask2former.data.datasets.wilds_semantic import load_wilds_semantic
+from mask2former.data.datasets.rugd_semantic import load_rugd_semantic_test
+from mask2former.data.datasets.rellis_semantic import load_rellis_semantic_test
+
 
 class Trainer(DefaultTrainer):
     """
@@ -311,8 +315,16 @@ def main(args):
     if 'lars_sem_seg_train' in cfg.DATASETS.TRAIN:
         DatasetCatalog.register("lars_sem_seg_train", load_lars_semantic)
         # MetadataCatalog.register("my_dataset", load_lars_semantic)
-    elif 'gta_sem_seg_train' in cfg.DATASETS.TRAIN:
+    if 'gta_sem_seg_train' in cfg.DATASETS.TRAIN:
         DatasetCatalog.register("gta_sem_seg_train", load_gta_semantic)
+    if 'wilds_sem_seg_train' in cfg.DATASETS.TRAIN:
+        DatasetCatalog.register("wilds_sem_seg_train", load_wilds_semantic)
+        MetadataCatalog.get("wilds_sem_seg_train").set(
+            evaluator_type="sem_seg",
+            ignore_label=255,
+            stuff_classes=["dirt", "gravel", "mud", "bush", "grass", "log", "tree", "fence", "other-object", "rock", "structure", "water", "sky"]
+        )
+        
     if 'lars_sem_seg_val' in cfg.DATASETS.TEST:
         DatasetCatalog.register("lars_sem_seg_val", load_lars_semantic_val)
         # MetadataCatalog.register("my_dataset", load_lars_semantic)
@@ -329,6 +341,22 @@ def main(args):
             evaluator_type="sem_seg",
             ignore_label=255,
             stuff_classes=MetadataCatalog.get("cityscapes_fine_sem_seg_train").stuff_classes
+        )
+
+    if 'rugd_sem_seg_test' in cfg.DATASETS.TEST:
+        DatasetCatalog.register("rugd_sem_seg_test", load_rugd_semantic_test)
+        MetadataCatalog.get("rugd_sem_seg_test").set(
+            evaluator_type="sem_seg",
+            ignore_label=255,
+            stuff_classes=["dirt", "gravel", "mud", "bush", "grass", "log", "tree", "fence", "other-object", "rock", "structure", "water", "sky"]
+        )
+
+    if 'rellis_sem_seg_test' in cfg.DATASETS.TEST:
+        DatasetCatalog.register("rellis_sem_seg_test", load_rellis_semantic_test)
+        MetadataCatalog.get("rellis_sem_seg_test").set(
+            evaluator_type="sem_seg",
+            ignore_label=255,
+            stuff_classes=["dirt", "gravel", "mud", "bush", "grass", "log", "tree", "fence", "other-object", "rock", "structure", "water", "sky"]
         )
 
     if args.eval_only:

@@ -1,1 +1,3 @@
 CUDA_VISIBLE_DEVICES=0,1,2,3 python train_net.py --num-gpus 4 --resume --config-file configs/gta/semantic-segmentation/swin/maskformer2_swin_large_IN21k_384_bs16_90k.yaml --dist-url='tcp://127.0.0.1:8475' OUTPUT_DIR outputs_gta
+CUDA_VISIBLE_DEVICES=0,1,2,3 python train_net.py --num-gpus 4 --resume --config-file configs/wilds/semantic-segmentation/swin/maskformer2_swin_large_IN21k_384_bs16_90k.yaml --dist-url='tcp://127.0.0.1:8475' OUTPUT_DIR outputs_wilds
+
